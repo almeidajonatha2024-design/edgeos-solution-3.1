@@ -1,24 +1,37 @@
 name: Gerador de APK EdgeOS
-on: [push, workflow_dispatch]
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-color: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Instalar Java e Dependencias do Linux
-        run: |
-          sudo apt update
-          sudo apt install -y python3-pip openjdk-17-jdk zlib1g-dev libffi-dev libssl-dev xclip xsel scons
-          pip install buildozer cython virtualenv kivy reportlab
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
-      - name: Compilar APK em Silencio Absoluto
-        run: |
-          yes | buildozer -v android debug --allow-root
-          
-      - name: Liberar Download do APK Pronto
-        uses: actions/upload-artifact@v4
-        with:
-          name: EdgeOS-Solucoes-APK
-          path: bin/*.apk
+    - name: Instalar Dependencias do Sistema Linux do GitHub
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev python3-pip python3-setuptools python3-dev overlayroot openjdk-17-jdk unzip zip
+
+    - name: Instalar Cython e Buildozer
+      run: |
+        pip install --upgrade pip
+        pip install Cython==0.29.36 buildozer
+
+    - name: Compilar APK em Silencio Absoluto
+      run: |
+        buildozer android debug
+        
+    - name: Liberar Download do APK Pronto
+      uses: actions/upload-artifact@v4
+      with:
+        name: EdgeOS-Solutions-v3.1
+        path: bin/*.apk
