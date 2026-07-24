@@ -5,8 +5,12 @@
                                                                                    # (str) Title of your application
 title = EdgeOS
                                                                                    
-package.name = edgeossolution
-                                                 package.name = edgecore
+package.name = edgeossolution 
+android.api = 33
+android.minapi = 21
+android.sdk = 33
+android.ndk = 25b
+                                              package.name = edgecore
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.edgeos                                                        
