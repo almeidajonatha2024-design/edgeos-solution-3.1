@@ -7,14 +7,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Instalar Java e Dependencias do Linux
+      - name: Configurar Java SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Instalar Dependencias do Linux e Android
         run: |
           sudo apt update
-          sudo apt install -y python3-pip openjdk-17-jdk zlib1g-dev libffi-dev libssl-dev xclip xsel scons
-          pip install buildozer cython virtualenv kivy reportlab
+          sudo apt install -y python3-pip zlib1g-dev libffi-dev libssl-dev xclip xsel scons autoconf automake libtool
+          pip install --upgrade pip
+          pip install buildozer cython virtualenv kivy reportlab urllib3
 
-      - name: Compilar APK em Silencio Absoluto
+      - name: Aceitar Licenças do Android SDK
         run: |
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/licenses
+          echo -e "\n8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb743130d19772421345\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > /home/runner/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+
+      - name: Forçar Limpeza Profunda e Compilar
+        run: |
+          buildozer android clean
           yes | buildozer -v android debug --allow-root
           
       - name: Liberar Download do APK Pronto
