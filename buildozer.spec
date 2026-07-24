@@ -5,7 +5,8 @@
                                                                                    # (str) Title of your application
 title = EdgeOS
                                                                                    
-# (str) Package name                                                               package.name = edgecore
+package.name = edgeossolution
+                                                 package.name = edgecore
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.edgeos                                                        
