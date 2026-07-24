@@ -107,3 +107,4 @@ class AntivirusKivyApp(App):
 
 if __name__ == '__main__':
     AntivirusKivyApp().run()
+    
