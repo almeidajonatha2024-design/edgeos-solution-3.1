@@ -1,0 +1,24 @@
+name: Gerador de APK EdgeOS
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Java e Dependencias do Linux
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip openjdk-17-jdk zlib1g-dev libffi-dev libssl-dev xclip xsel scons
+          pip install buildozer cython virtualenv kivy reportlab
+
+      - name: Compilar APK em Silencio Absoluto
+        run: |
+          yes | buildozer -v android debug --allow-root
+          
+      - name: Liberar Download do APK Pronto
+        uses: actions/upload-artifact@v4
+        with:
+          name: EdgeOS-Solucoes-APK
+          path: bin/*.apk
