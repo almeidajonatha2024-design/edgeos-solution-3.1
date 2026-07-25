@@ -1,0 +1,61 @@
+name: Gerar APK EDGEOS SOLUTIONS
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar o Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instalar Dependências do Sistema Linux
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsqlite3-dev lld libffi-dev libssl-dev unp libjpeg-turbo8-dev zlib1g-dev autocomplete-apk autoconf automake libtool openjdk-17-jdk
+
+    - name: Instalar Buildozer e Pip
+      run: |
+        pip install --upgrade pip
+        pip install buildozer kivy pyjnius
+
+    - name: Criar buildozer.spec Automatico
+      run: |
+        cat << 'EOF' > buildozer.spec
+        [app]
+        title = EDGEOS SOLUTIONS v3.1
+        package.name = edgeos_solutions
+        package.domain = com.security.antivirus
+        source.dir = .
+        source.include_exts = py,png,jpg,kv,atlas
+        version = 3.1
+        requirements = python3,kivy,pyjnius
+        android.permissions = QUERY_ALL_PACKAGES, REQUEST_DELETE_PACKAGES, READ_SMS, READ_CONTACTS, POST_NOTIFICATIONS, INTERNET
+        android.api = 34
+        android.minapi = 21
+        android.sdk = 34
+        android.ndk = 26b
+        orientation = portrait
+        fullscreen = 1
+        services = service_antivirus:services.py:foreground
+        [buildozer]
+        log_level = 2
+        warn_on_root = 1
+        EOF
+
+    - name: Compilar o Aplicativo com Buildozer
+      run: |
+        buildozer android debug
+
+    - name: Disponibilizar o Arquivo APK para Download
+      uses: actions/upload-artifact@v4
+      with:
+        name: EDGEOS-v3.1-Instalador
+        path: bin/*.apk
