@@ -1,0 +1,49 @@
+workflows:
+  python-kivy-android:
+    name: Compilar EDGEOS SOLUTIONS APK
+    max_build_duration: 30
+    instance_type: mac_mini_m1
+    environment:
+      groups:
+        - target
+      vars:
+        PUBLIC_URL: "https://github.com"
+      python: 3.11
+    triggering:
+      events:
+        - push
+      branches:
+        - main
+    scripts:
+      - name: Instalar Dependências de Compilação
+        script: |
+          pip install --upgrade pip
+          pip install buildozer kivy pyjnius
+      - name: Criar buildozer.spec Automatizado
+        script: |
+          cat << 'EOF' > buildozer.spec
+          [app]
+          title = EDGEOS SOLUTIONS v3.1
+          package.name = edgeos_solutions
+          package.domain = com.security.antivirus
+          source.dir = .
+          source.include_exts = py,png,jpg,kv,atlas
+          version = 3.1
+          requirements = python3,kivy,pyjnius
+          android.permissions = QUERY_ALL_PACKAGES, REQUEST_DELETE_PACKAGES, READ_SMS, READ_CONTACTS, POST_NOTIFICATIONS, INTERNET
+          android.api = 34
+          android.minapi = 21
+          android.sdk = 34
+          android.ndk = 26b
+          orientation = portrait
+          fullscreen = 1
+          services = service_antivirus:services.py:foreground
+          [buildozer]
+          log_level = 2
+          warn_on_root = 1
+          EOF
+      - name: Compilar o Aplicativo com Buildozer
+        script: |
+          buildozer android debug
+    artifacts:
+      - bin/*.apk
